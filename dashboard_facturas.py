@@ -133,19 +133,13 @@ st.markdown(f"**Modelo final:** {proyecto.get('modelo_final','N/D')}")
 st.divider()
 st.header("Resumen ejecutivo")
 analisis(
-    "En las facturas del presente trabajo, LiLT, que se apoya solo en el texto y su disposición "
-    "generaliza mejor que LayoutLMv3, que además usa la imagen, lo supera en F1 macro (0,726 frente a "
-    "0,671). La diferencia se nota sobre todo en los campos que dependen del texto, "
-    "como los valores, la fecha y el adquiriente. El sistema "
-    "que se lleva a producción es el ensamble focal, el de mejor desempeño de todo el estudio (F1 micro "
-    "0,755 y 69,1% de campos completos por documento)."
-    "<br><br>"
-    "<b>Síntesis del estudio: </b>"
-    "Se compararon los modelos LayoutLMv3 (texto+posición+imagen) y LiLT (texto+layout), en emisores no vistos "
-    "LiLT ganó (F1 macro 0,726 vs 0,671). Se aplicaron las mejoras: focal loss y ensamble por promedio "
+    "Se compararon los modelos LayoutLMv3 (texto+posición+imagen) y LiLT (texto+layout), en emisores no vistos, "
+    "LiLT que se apoya solo en el texto y su disposición, generaliza mejor que LayoutLMv3, que además usa la imagen, "
+    "(F1 macro 0,726 vs 0,671). La diferencia se nota sobre todo en los campos que dependen del texto, como los valores, la fecha y el adquiriente. " \
+    "Se aplicaron las mejoras: focal loss y ensamble por promedio "
     "de probabilidades, se selecciona al ensamble focal (LiLT focal + LayoutLMv3 focal) como modelo final "
-    "(F1 micro 0,755), con ventaja estadísticamente significativa sobre el mejor modelo único. "
-    "La salida se valida en dos capas (reglas + cruce por CUFE con una base de referencia)."
+    "(F1 micro 0,755 y 69,1% de campos completos por documento), con ventaja estadísticamente significativa sobre el mejor modelo único. "
+    "La salida se valida en dos capas (reglas + cruce por CUFE con una base de referencia <i>gold</i>).<br>"
 )
 
 k = st.columns(4)
@@ -331,7 +325,7 @@ if tray:
 analisis(
     "El problema de raíz son los tokens fundidos, el OCR pega en un solo token el rótulo y el "
     "valor (por ejemplo NIT: 900.319.753-3, FACTURA ELECTRÓNICA DE VENTA No. "
-    "FE03-01676493, y ese token queda mucho más ancho que la caja anotada del campo. Para "
+    "FE03-01676493), y ese token queda mucho más ancho que la caja anotada del campo. Para "
     "proyectar las cajas sobre los tokens sin perder campos, el emparejamiento se refinó en tres pasos:"
     "<br><br>"
     "<b>1. Inicial (699 perdidos).</b> Se medía solo qué fracción del <i>token</i> caía dentro de la "
@@ -358,7 +352,7 @@ st.header("Comparativa de modelos")
 analisis(
     "LiLT termina por encima de LayoutLMv3 en F1 macro (0,726 frente a 0,671) y gana en 6 de las 8 "
     "entidades. LayoutLMv3, que suma la imagen, solo saca ventaja en los campos del encabezado del "
-    "emisor, donde la apariencia (la cercanía al logo, una posición fija) ayuda a ubicarlos, en los demas campos "
+    "emisor, donde la apariencia (la cercanía al logo, una posición fija) ayuda a ubicarlos, en los demás campos "
     "domina LiLT, el caso más llamativo es el IVA, que pasa de 0,400 a 0,783. La diferencia no "
     "es casualidad, el intervalo de confianza de la resta entre ambos no llega a tocar el cero, así que "
     "es estadísticamente significativa. En resumen, la rama visual (para el idioma español) no alcanza a "
@@ -583,10 +577,10 @@ if ent:
     analisis(
         "<b>Por qué el ensamble focal (el modelo elegido) tiene la entropía más alta (0,167 / 0,458 bits) "
         "y aun así es el mejor.</b> "
-        "La entropía cuánto reparte el modelo su probabilidad entre las opciones. "
-        "Baja entropía = casi toda la probabilidad en una sola clase (predicción tajante), "
-        "alta entropía = probabilidad repartida (el modelo duda)."
-        "Que el ensamble dude más que sus componentes (LiLT 0,044; LayoutLMv3 0,109 en tokens-entidad) "
+        "La entropía cuantifica cuánto reparte el modelo su probabilidad entre las opciones, es decir, "
+        "baja entropía = casi toda la probabilidad en una sola clase (predicción tajante), "
+        "alta entropía = probabilidad repartida (el modelo duda). "
+        "Que el ensamble dude más que sus componentes (LiLT con 0,044 y LayoutLMv3 0,109, en tokens-entidad) "
         "no es un defecto, sino el sello de cómo se construye, al promediar las probabilidades de dos "
         "modelos, la certeza se reparte y el ensamble solo se compromete con un campo cuando ambos lo "
         "respaldan, donde discrepan, la probabilidad se aplana y la entropía sube. Esa cautela es "
@@ -641,7 +635,7 @@ if vpc:
         '<div style="background:#fff;border:1px solid #D8DEE4;border-radius:6px;padding:9px 13px;'
         'margin:7px 0;font-family:monospace;font-size:0.85rem;color:#1E2A38;">'
         'validez de una factura = COINCIDE / (COINCIDE + DIFIERE)</div>'
-        'Por cada factura se mira cuántos de sus campos comparables, es decir, los que existen en ambos'
+        'Por cada factura se mira cuántos de sus campos comparables, es decir, los que existen en ambos '
         'lados, coinciden con la base de referencia, los NO_COMPARABLE no entran en el denominador. '
         'La validez media global es el promedio de esa fracción sobre las 600 facturas.'
         '<div style="color:#5A6B7B;font-size:0.82rem;margin-top:6px;">'
